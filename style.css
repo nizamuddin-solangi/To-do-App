@@ -500,6 +500,39 @@ select {
   }
 }
 
+.tb-dash-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 11px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--t1);
+  font-size: .82rem;
+  font-weight: 600;
+  transition: all .2s var(--spring);
+}
+
+.tb-dash-btn svg {
+  width: 16px;
+  height: 16px;
+  color: var(--v2);
+}
+
+.tb-dash-btn:hover {
+  background: var(--surface);
+  border-color: var(--v2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, .2);
+}
+
+.tb-dash-btn.active {
+  background: rgba(124, 58, 237, 0.15);
+  border-color: var(--v);
+  color: #fff;
+}
+
 .tb-new-btn {
   display: flex;
   align-items: center;
@@ -801,6 +834,74 @@ select {
   pointer-events: none
 }
 
+/* ── Dashboard Area ── */
+.dash-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 40px;
+  overflow-y: auto;
+  animation: fadeIn 0.4s var(--ease);
+}
+
+.dash-header {
+  margin-bottom: 30px;
+}
+
+.dash-header h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--t1);
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+
+.dash-header p {
+  color: var(--t2);
+  font-size: 0.9rem;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(20px);
+}
+
+.chart-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.chart-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--t1);
+  margin-bottom: 20px;
+}
+
+.chart-wrap {
+  position: relative;
+  height: 250px;
+  width: 100%;
+  flex: 1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── Add/Edit Modal ── */
 .cd-today {
   background: rgba(124, 58, 237, .12);
   border-color: rgba(124, 58, 237, .45);
@@ -832,7 +933,9 @@ select {
   display: none
 }
 
-  box-shadow: 0 0 4px var(--md)
+.cd-dot.medium {
+  background: var(--md);
+  box-shadow: 0 0 4px var(--md);
 }
 
 .cd-dot.low {

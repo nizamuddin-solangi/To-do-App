@@ -13,6 +13,7 @@ const state = {
   filter: 'all',
   editingId: null,
   deleteTarget: null,
+  viewMode: 'tasks', // 'tasks' or 'dashboard'
 };
 
 const LS = 'smartcal_v3';
@@ -218,9 +219,7 @@ function renderCalendar() {
     if (k === state.selectedDate) cls += ' cd-sel';
     let dots = '';
     if (dayT.length) {
-      dots = '<div class="cd-dots">';
-      dayT.slice(0, 3).forEach(t => { dots += `<div class="cd-dot ${t.priority}"></div>`; });
-      dots += '</div>';
+      dots = `<span class="cd-count">${dayT.length}</span>`;
     }
     html += `<div class="${cls}" data-k="${k}" tabindex="0">${d}${dots}</div>`;
   }
@@ -262,6 +261,9 @@ function selectDate(k) {
 function renderTasks() {
   const { selectedDate: sd, filter: f } = state;
   const list = $('taskList'), empty = $('emptyView');
+  
+  if (state.viewMode === 'dashboard') return;
+
   if (!sd) { list.innerHTML = ''; empty.style.display = 'flex'; $('phSub').textContent = 'Pick a day from the calendar'; return; }
   // Show past-date notice in subtitle
   const pastNote = isPast(sd) ? ' · 🔒 Past date — view only' : '';
@@ -473,6 +475,118 @@ $('goToday').addEventListener('click', () => { state.viewYear = state.today.getF
     btn.classList.add('active');
     renderTasks();
   });
+});
+
+// Dashboard Toggle & Charts
+let charts = {};
+const chartColors = {
+  v: '#7c3aed', v2: '#a78bfa',
+  c: '#0ea5e9', c2: '#38bdf8',
+  md: '#f59e0b', md2: 'rgba(245, 158, 11, 0.4)',
+  hi: '#f43f5e', hi2: 'rgba(244, 63, 94, 0.4)',
+  lo: '#10b981', lo2: 'rgba(16, 185, 129, 0.4)',
+  bg: 'rgba(255,255,255,0.06)'
+};
+
+Chart.defaults.color = '#8892b0';
+Chart.defaults.font.family = "'Inter', sans-serif";
+
+function renderCharts() {
+  const allTasks = Object.values(state.tasks).flat();
+  const done = allTasks.filter(t => t.status === 'completed').length;
+  const pend = allTasks.length - done;
+
+  const prios = { high: 0, medium: 0, low: 0 };
+  allTasks.forEach(t => { prios[t.priority]++; });
+
+  // Status Doughnut Chart
+  if(charts.status) charts.status.destroy();
+  charts.status = new Chart($('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Completed', 'Pending'],
+      datasets: [{
+        data: [done, pend],
+        backgroundColor: [chartColors.c2, chartColors.md],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: { cutout: '70%', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // Priority Pie Chart
+  if(charts.priority) charts.priority.destroy();
+  charts.priority = new Chart($('priorityChart'), {
+    type: 'pie',
+    data: {
+      labels: ['High', 'Medium', 'Low'],
+      datasets: [{
+        data: [prios.high, prios.medium, prios.low],
+        backgroundColor: [chartColors.hi, chartColors.md, chartColors.lo],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // Activity Bar Chart (Last 7 Days)
+  const labels = [], dataDone = [], dataPend = [];
+  for(let i=6; i>=0; i--) {
+    const d = new Date(state.today);
+    d.setDate(d.getDate() - i);
+    const tk = dateKey(d.getFullYear(), d.getMonth()+1, d.getDate());
+    const dayT = getTasks(tk);
+    labels.push(d.toLocaleDateString('en-US', {weekday:'short'}));
+    dataDone.push(dayT.filter(t => t.status === 'completed').length);
+    dataPend.push(dayT.filter(t => t.status !== 'completed').length);
+  }
+
+  if(charts.activity) charts.activity.destroy();
+  charts.activity = new Chart($('activityChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Completed', data: dataDone, backgroundColor: chartColors.c2, borderRadius: 4 },
+        { label: 'Pending', data: dataPend, backgroundColor: chartColors.v, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, grid: { color: chartColors.bg }, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+}
+
+$('dashBtn').addEventListener('click', (e) => {
+  ripple($('dashBtn'), e);
+  const btn = $('dashBtn');
+  const dash = $('dashArea'), taskArea = $('taskArea'), panelHead = $('panelHeader');
+
+  if (state.viewMode === 'tasks') {
+    state.viewMode = 'dashboard';
+    btn.classList.add('active');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Calendar`;
+    
+    taskArea.style.display = 'none';
+    panelHead.style.display = 'none';
+    dash.style.display = 'flex';
+    renderCharts();
+  } else {
+    state.viewMode = 'tasks';
+    btn.classList.remove('active');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Dashboard`;
+    
+    dash.style.display = 'none';
+    panelHead.style.display = 'flex';
+    taskArea.style.display = 'block';
+    renderTasks();
+  }
 });
 
 // Hamburger

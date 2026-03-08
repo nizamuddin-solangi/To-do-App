@@ -8,10 +8,10 @@
   <meta name="description" content="A next-generation smart to-do calendar with stunning animations." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -93,6 +93,12 @@
 
       <div class="tb-right">
         <div class="tb-stat-chips" id="tbStatChips"></div>
+        <button class="tb-dash-btn" id="dashBtn" title="Toggle Analytics Dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+          Dashboard
+        </button>
         <button class="tb-new-btn" id="tbNewBtn" title="New Task (Ctrl+N)">
           <svg viewBox="0 0 20 20" fill="currentColor">
             <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
@@ -282,6 +288,34 @@
 
           <!-- Task list -->
           <div class="task-list" id="taskList"></div>
+        </div>
+
+        <!-- Dashboard Area -->
+        <div class="dash-area" id="dashArea" style="display:none;">
+          <div class="dash-header">
+            <h2>Analytics Dashboard</h2>
+            <p>Your productivity overview for this month</p>
+          </div>
+          <div class="chart-grid">
+            <div class="chart-card">
+              <h3>Task Status</h3>
+              <div class="chart-wrap">
+                <canvas id="statusChart"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Tasks by Priority</h3>
+              <div class="chart-wrap">
+                <canvas id="priorityChart"></canvas>
+              </div>
+            </div>
+            <div class="chart-card full-width">
+              <h3>Recent Task Activity</h3>
+              <div class="chart-wrap">
+                <canvas id="activityChart"></canvas>
+              </div>
+            </div>
+          </div>
         </div>
 
       </main>
