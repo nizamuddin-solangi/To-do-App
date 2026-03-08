@@ -17,8 +17,28 @@ const state = {
 };
 
 const LS = 'smartcal_v3';
-function loadTasks() { try { const r = localStorage.getItem(LS); if (r) state.tasks = JSON.parse(r); } catch (_) { } }
-function saveTasks() { localStorage.setItem(LS, JSON.stringify(state.tasks)); }
+function loadTasks() {
+  try {
+    const r = localStorage.getItem(LS);
+    if (r) {
+      const parsed = JSON.parse(r);
+      // Safety check: ensure it's a plain object
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        state.tasks = parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('SmartCal: Could not load tasks from localStorage.', e);
+    state.tasks = {};
+  }
+}
+function saveTasks() {
+  try {
+    localStorage.setItem(LS, JSON.stringify(state.tasks));
+  } catch (e) {
+    console.warn('SmartCal: Could not save tasks to localStorage.', e);
+  }
+}
 
 // ─── UTILS ──────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -445,7 +465,9 @@ $('taskForm').addEventListener('submit', e => {
   if (!title) { $('fTitle').classList.add('err'); $('titleErr').classList.add('show'); $('fTitle').focus(); return; }
   clearErr();
   const priority = document.querySelector('[name="priority"]:checked')?.value || 'medium';
-  saveTask({ title, desc: $('fDesc').value.trim(), priority, time: $('fTime').value || '', status: $('fStatus').value });
+  // For new tasks: always default to 'pending'. For edits: read the status field.
+  const status = state.editingId ? ($('fStatus').value || 'pending') : 'pending';
+  saveTask({ title, desc: $('fDesc').value.trim(), priority, time: $('fTime').value || '', status });
   closeModal();
 });
 $('fTitle').addEventListener('input', () => { if ($('fTitle').value.trim()) clearErr(); });
