@@ -39,12 +39,15 @@
 *::after {
   box-sizing: border-box;
   margin: 0;
-  padding: 0
+  padding: 0;
+  min-width: 0;
 }
 
 html {
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
@@ -52,7 +55,9 @@ body {
   background: var(--bg);
   color: var(--t1);
   min-height: 100vh;
-  overflow: hidden
+  overflow-x: hidden;
+  overflow-y: hidden;
+  max-width: 100%;
 }
 
 button {
@@ -624,6 +629,8 @@ select {
   left: 0;
   right: 0;
   bottom: 0;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* ── Sidebar ── */
