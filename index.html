@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartCal — Task Manager</title>
+  <meta name="description" content="A next-generation smart to-do calendar with stunning animations." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ═══ AMBIENT EFFECTS ═══ -->
+  <canvas id="starCanvas"></canvas>
+  <canvas id="confettiCanvas"></canvas>
+  <div id="cursorGlow"></div>
+  <div class="noise-overlay"></div>
+
+  <!-- SVG blob filter -->
+  <svg class="blob-svg" aria-hidden="true">
+    <defs>
+      <filter id="blobFilter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="2" seed="2" result="noise">
+          <animate attributeName="seed" values="1;20;1" dur="30s" repeatCount="indefinite" />
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="60" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
+  <div class="blob-field">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="blob blob-c"></div>
+    <div class="blob blob-d"></div>
+  </div>
+
+  <!-- ═══ PRELOADER ═══ -->
+  <div id="preloader">
+    <div class="preloader-inner">
+      <div class="pl-logo">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="4" y="6" width="40" height="38" rx="6" class="pl-rect" />
+          <line x1="14" y1="2" x2="14" y2="10" class="pl-tick" />
+          <line x1="34" y1="2" x2="34" y2="10" class="pl-tick" />
+          <line x1="4" y1="18" x2="44" y2="18" />
+          <circle cx="16" cy="28" r="2" fill="currentColor" class="pl-dot" />
+          <circle cx="24" cy="28" r="2" fill="currentColor" class="pl-dot" />
+          <circle cx="32" cy="28" r="2" fill="currentColor" class="pl-dot" />
+          <circle cx="16" cy="36" r="2" fill="currentColor" class="pl-dot" />
+          <circle cx="24" cy="36" r="2" fill="currentColor" class="pl-dot" />
+        </svg>
+      </div>
+      <div class="pl-bar">
+        <div class="pl-fill"></div>
+      </div>
+      <p class="pl-text">SmartCal</p>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN APP ═══ -->
+  <div id="app" class="app-hidden">
+
+    <!-- ── HEADER ── -->
+    <header class="top-bar">
+      <div class="tb-brand">
+        <div class="tb-orb" id="tbOrb">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="4" width="18" height="18" rx="3" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+            <circle cx="8" cy="15" r="1.2" fill="currentColor" />
+            <circle cx="12" cy="15" r="1.2" fill="currentColor" />
+            <circle cx="16" cy="15" r="1.2" fill="currentColor" />
+          </svg>
+        </div>
+        <div class="tb-name-wrap">
+          <span class="tb-name">Smart<span class="accent-text">Cal</span></span>
+          <span class="tb-tag" id="typingTag"></span>
+        </div>
+      </div>
+
+      <div class="tb-clock-wrap">
+        <div class="tb-clock" id="liveClock"></div>
+        <div class="tb-date-str" id="liveDate"></div>
+      </div>
+
+      <div class="tb-right">
+        <div class="tb-stat-chips" id="tbStatChips"></div>
+        <button class="tb-new-btn" id="tbNewBtn" title="New Task (Ctrl+N)">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+          </svg>
+          New Task
+        </button>
+        <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </header>
+
+    <!-- ── BODY ── -->
+    <div class="app-body">
+
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar" id="sidebar">
+
+        <!-- Calendar -->
+        <div class="widget cal-widget">
+          <div class="cal-nav">
+            <button class="cal-nav-btn" id="prevMonth">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                  clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="cal-month-wrap">
+              <h2 class="cal-month" id="calTitle"></h2>
+              <button class="today-pill" id="goToday">Today</button>
+            </div>
+            <button class="cal-nav-btn" id="nextMonth">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+          <div class="cal-weekdays">
+            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+          <div class="cal-overflow">
+            <div class="cal-grid" id="calGrid"></div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="widget stats-widget" id="statsWidget">
+          <div class="widget-label">Month Overview</div>
+          <div class="donut-row">
+            <div class="donut-item">
+              <svg class="donut-svg" viewBox="0 0 56 56">
+                <defs>
+                  <linearGradient id="gAll" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#818cf8" />
+                    <stop offset="100%" stop-color="#38bdf8" />
+                  </linearGradient>
+                </defs>
+                <circle class="donut-bg" cx="28" cy="28" r="22" />
+                <circle class="donut-ring" id="donutAll" cx="28" cy="28" r="22" stroke="url(#gAll)" />
+              </svg>
+              <div class="donut-info">
+                <span class="donut-num" id="sTotal">0</span>
+                <span class="donut-label">Total</span>
+              </div>
+            </div>
+            <div class="donut-item">
+              <svg class="donut-svg" viewBox="0 0 56 56">
+                <defs>
+                  <linearGradient id="gPend" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fb923c" />
+                    <stop offset="100%" stop-color="#fbbf24" />
+                  </linearGradient>
+                </defs>
+                <circle class="donut-bg" cx="28" cy="28" r="22" />
+                <circle class="donut-ring" id="donutPend" cx="28" cy="28" r="22" stroke="url(#gPend)" />
+              </svg>
+              <div class="donut-info">
+                <span class="donut-num" id="sPending" style="color:#fb923c">0</span>
+                <span class="donut-label">Pending</span>
+              </div>
+            </div>
+            <div class="donut-item">
+              <svg class="donut-svg" viewBox="0 0 56 56">
+                <defs>
+                  <linearGradient id="gDone" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#34d399" />
+                    <stop offset="100%" stop-color="#22d3ee" />
+                  </linearGradient>
+                </defs>
+                <circle class="donut-bg" cx="28" cy="28" r="22" />
+                <circle class="donut-ring" id="donutDone" cx="28" cy="28" r="22" stroke="url(#gDone)" />
+              </svg>
+              <div class="donut-info">
+                <span class="donut-num" id="sDone" style="color:#34d399">0</span>
+                <span class="donut-label">Done</span>
+              </div>
+            </div>
+          </div>
+          <div class="prog-track">
+            <div class="prog-fill" id="progFill"></div>
+            <div class="prog-glow" id="progGlow"></div>
+          </div>
+          <div class="prog-meta"><span id="progPct">0%</span> of tasks complete this month</div>
+        </div>
+
+        <!-- Filter -->
+        <div class="widget filter-widget">
+          <div class="widget-label">Show Tasks</div>
+          <div class="filter-row">
+            <button class="filter-btn active" data-filter="all" id="fAll">
+              <span class="fb-dot" style="background:linear-gradient(135deg,#818cf8,#38bdf8)"></span>All
+            </button>
+            <button class="filter-btn" data-filter="pending" id="fPending">
+              <span class="fb-dot" style="background:#fb923c"></span>Pending
+            </button>
+            <button class="filter-btn" data-filter="completed" id="fCompleted">
+              <span class="fb-dot" style="background:#34d399"></span>Done
+            </button>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- ── MAIN PANEL ── -->
+      <main class="main-panel" id="mainPanel">
+
+        <!-- Sticky task panel header -->
+        <div class="panel-header" id="panelHeader">
+          <div class="ph-left">
+            <div class="ph-date-card" id="phDateCard">
+              <span class="ph-dow" id="phDow">—</span>
+              <span class="ph-day" id="phDay">—</span>
+              <span class="ph-mon" id="phMon">—</span>
+            </div>
+            <div class="ph-info">
+              <h2 class="ph-title" id="phTitle">Select a date</h2>
+              <p class="ph-sub" id="phSub">Pick a day on the calendar</p>
+            </div>
+          </div>
+          <div class="ph-right">
+            <div class="scroll-prog-wrap" id="scrollProgWrap">
+              <svg class="scroll-ring" viewBox="0 0 36 36">
+                <circle class="sr-bg" cx="18" cy="18" r="15" />
+                <circle class="sr-fill" id="scrollRing" cx="18" cy="18" r="15" />
+              </svg>
+            </div>
+            <button class="add-btn" id="addBtn" disabled>
+              <span class="add-btn-shine"></span>
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+              </svg>
+              <span>New Task</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Task Area -->
+        <div class="task-area" id="taskArea">
+
+          <!-- Empty illustration -->
+          <div class="empty-view" id="emptyView">
+            <div class="empty-art">
+              <div class="ea-ring ea-r1"></div>
+              <div class="ea-ring ea-r2"></div>
+              <div class="ea-ring ea-r3"></div>
+              <svg class="ea-icon" viewBox="0 0 100 100" fill="none">
+                <path d="M25 18C25 13.58 28.58 10 33 10H67C71.42 10 75 13.58 75 18V85L50 73L25 85V18Z"
+                  stroke="url(#eaG)" stroke-width="2.5" stroke-linejoin="round" />
+                <line x1="36" y1="35" x2="64" y2="35" stroke="url(#eaG2)" stroke-width="2" stroke-linecap="round" />
+                <line x1="36" y1="47" x2="58" y2="47" stroke="url(#eaG2)" stroke-width="2" stroke-linecap="round" />
+                <line x1="36" y1="59" x2="52" y2="59" stroke="url(#eaG2)" stroke-width="2" stroke-linecap="round" />
+                <defs>
+                  <linearGradient id="eaG" x1="25" y1="10" x2="75" y2="85" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#818cf8" />
+                    <stop offset="1" stop-color="#38bdf8" />
+                  </linearGradient>
+                  <linearGradient id="eaG2" x1="36" y1="0" x2="64" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#818cf8" stop-opacity="0.6" />
+                    <stop offset="1" stop-color="#38bdf8" stop-opacity="0.6" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <h3 class="empty-title" id="emptyTitle">Nothing here yet</h3>
+            <p class="empty-text" id="emptyText">Select a date from the calendar to view or create tasks.</p>
+          </div>
+
+          <!-- Task list -->
+          <div class="task-list" id="taskList"></div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ═══ ADD/EDIT MODAL ═══ -->
+  <div class="modal-veil" id="modalVeil">
+    <div class="modal-box" id="modalBox" role="dialog" aria-modal="true" aria-labelledby="modalHeading">
+      <div class="modal-bg-glow"></div>
+
+      <!-- Progress stepper -->
+      <div class="modal-stepper">
+        <div class="ms-line"></div>
+        <div class="ms-step active"><span>1</span></div>
+        <div class="ms-step"><span>2</span></div>
+        <div class="ms-step"><span>3</span></div>
+      </div>
+
+      <div class="modal-head">
+        <div class="modal-icon" id="modalIcon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="modal-heading" id="modalHeading">New Task</h3>
+          <p class="modal-subhead" id="modalSubhead">Add a new task to your day</p>
+        </div>
+        <button class="modal-x" id="modalX" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="taskForm" novalidate>
+        <input type="hidden" id="taskId" />
+
+        <div class="mf-section">
+          <div class="mf-group full">
+            <label class="mf-label" for="fTitle">Task Title <span class="mf-req">*</span></label>
+            <input class="mf-input" type="text" id="fTitle" placeholder="e.g. Review design system" maxlength="120"
+              autocomplete="off" />
+            <span class="mf-error" id="titleErr">Title cannot be empty</span>
+          </div>
+          <div class="mf-group full">
+            <label class="mf-label" for="fDesc">Description <span class="mf-opt">optional</span></label>
+            <textarea class="mf-input mf-textarea" id="fDesc" placeholder="Add context, notes, or details…" rows="3"
+              maxlength="600"></textarea>
+          </div>
+        </div>
+
+        <div class="mf-section">
+          <div class="mf-priority-select" id="mfPrioritySelect">
+            <p class="mf-sec-label">Priority</p>
+            <div class="priority-options">
+              <label class="popt low-opt">
+                <input type="radio" name="priority" value="low" />
+                <span class="popt-inner">
+                  <span class="popt-icon">🟢</span>
+                  <span class="popt-name">Low</span>
+                </span>
+              </label>
+              <label class="popt med-opt">
+                <input type="radio" name="priority" value="medium" checked />
+                <span class="popt-inner">
+                  <span class="popt-icon">🟡</span>
+                  <span class="popt-name">Medium</span>
+                </span>
+              </label>
+              <label class="popt hi-opt">
+                <input type="radio" name="priority" value="high" />
+                <span class="popt-inner">
+                  <span class="popt-icon">🔴</span>
+                  <span class="popt-name">High</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mf-section mf-row-2" id="timeStatusRow">
+          <div class="mf-group">
+            <label class="mf-label" for="fTime">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="8" cy="8" r="6.5" />
+                <polyline points="8 4.5 8 8 10.5 10" />
+              </svg>
+              Due Time
+            </label>
+            <input class="mf-input" type="time" id="fTime" />
+          </div>
+          <div class="mf-group" id="statusGroup">
+            <label class="mf-label" for="fStatus">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="8" cy="8" r="6.5" />
+                <polyline points="5 8 7 10 11 6" />
+              </svg>
+              Status
+            </label>
+            <div class="mf-select-wrap">
+              <select class="mf-input mf-select" id="fStatus">
+                <option value="pending">⏳ Pending</option>
+                <option value="completed">✅ Completed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="mf-actions">
+          <button type="button" class="mf-cancel" id="mfCancel">Cancel</button>
+          <button type="submit" class="mf-save" id="mfSave">
+            <span id="mfSaveTxt">Save Task</span>
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══ DELETE CONFIRM ═══ -->
+  <div class="modal-veil" id="deleteVeil">
+    <div class="modal-box del-box" role="dialog" aria-modal="true">
+      <div class="modal-bg-glow danger-glow"></div>
+      <div class="del-icon-wrap">
+        <div class="del-ring"></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 5v6m4-6v6" />
+        </svg>
+      </div>
+      <h3 class="del-title">Delete this task?</h3>
+      <p class="del-body">This is permanent. The task will be gone forever.</p>
+      <div class="del-actions">
+        <button class="mf-cancel" id="delCancel">Keep it</button>
+        <button class="del-confirm" id="delConfirm">Yes, Delete</button>
+      </div>
+      <button class="modal-x del-x" id="delX" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST ═══ -->
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
