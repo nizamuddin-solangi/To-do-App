@@ -2345,63 +2345,241 @@ select {
   color: var(--c);
 }
 
-/* ── Responsive ── */
-@media (max-width: 920px) {
-  :root { --sb: 260px; }
-  .task-area { padding: 16px 16px 28px; }
+/* ══════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS — All Devices
+══════════════════════════════════════════ */
+
+/* ── Large Tablet / Small Laptop (≤1200px) ── */
+@media (max-width: 1200px) {
+  :root { --sb: 270px; }
+  .tb-stat-chips { gap: 6px; }
+  .tsc { padding: 4px 10px; font-size: .68rem; }
 }
 
+/* ── Tablet Landscape (≤1024px) ── */
+@media (max-width: 1024px) {
+  :root { --sb: 240px; }
+  .tb-clock { font-size: 1.1rem; }
+  .tb-date-str { display: none; }
+  .donut-row { gap: 10px; }
+  .task-area { padding: 16px 20px 28px; }
+  .panel-header { padding: 14px 20px; }
+  .chart-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Tablet Portrait / Large Phone (≤768px) ── */
 @media (max-width: 768px) {
-  :root { --hdr: 60px; }
-  body { font-size: 14px; }
-  .top-bar { padding: 0 16px; justify-content: space-between; }
-  .tb-brand { gap: 8px; }
-  .tb-orb { width: 36px; height: 36px; border-radius: 10px; }
-  .tb-orb svg { width: 18px; height: 18px; }
-  .tb-name { font-size: 1.05rem; }
+  :root {
+    --hdr: 58px;
+    --sb: 300px;
+  }
+
+  /* Header */
+  .top-bar {
+    padding: 0 14px;
+    gap: 10px;
+  }
+  .tb-orb { width: 34px; height: 34px; border-radius: 9px; }
+  .tb-orb svg { width: 17px; height: 17px; }
+  .tb-name { font-size: .98rem; }
   .tb-tag { display: none; }
   .tb-clock-wrap { display: none; }
   .tb-stat-chips { display: none; }
-  .tb-new-btn span, 
-  .tb-dash-btn { font-size: 0; padding: 8px; gap: 0; }
-  .tb-dash-btn svg, .tb-new-btn svg { margin: 0; width: 20px; height: 20px; }
+  .tb-new-btn { padding: 7px 10px; font-size: 0; gap: 0; }
+  .tb-new-btn svg { width: 18px; height: 18px; margin: 0; }
+  .tb-dash-btn { padding: 7px 10px; font-size: 0; gap: 0; }
+  .tb-dash-btn svg { width: 18px; height: 18px; margin: 0; }
   .hamburger { display: flex; }
-  .app-body { flex-direction: column; }
+
+  /* Layout: stack body vertically */
+  .app-body { flex-direction: column; position: relative; }
+
+  /* Sidebar becomes full-screen off-canvas drawer */
   .sidebar {
-    position: fixed; top: var(--hdr); left: 0; bottom: 0; width: 100%;
-    transform: translateX(-100%); background: rgba(5, 5, 8, 0.95);
-    backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-    z-index: 90; transition: transform 0.35s var(--spring);
-    padding: 24px 16px; border-right: none; height: auto; max-height: none;
+    position: fixed;
+    top: var(--hdr);
+    left: 0;
+    bottom: 0;
+    width: min(88%, 340px);
+    transform: translateX(-110%);
+    background: rgba(5, 5, 8, 0.97);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    z-index: 95;
+    transition: transform 0.38s var(--spring);
+    padding: 20px 14px;
+    border-right: 1px solid var(--border2);
+    height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
   }
   .sidebar.open { transform: translateX(0); }
-  .main-panel { width: 100%; padding: 16px; min-height: calc(100vh - var(--hdr)); }
-  .panel-header { flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 16px; }
-  .ph-left { width: 100%; align-items: flex-start; }
-  .ph-right { width: 100%; justify-content: space-between; }
-  .ph-title { font-size: 1.4rem; }
-  .ph-date-card { min-width: 60px; height: 60px; }
-  .ph-dow { font-size: 0.55rem; }
-  .ph-day { font-size: 1.2rem; }
-  .task-list { gap: 12px; }
-  .task-card { padding: 16px; flex-wrap: wrap; }
-  .tc-actions { margin-left: auto; width: 100%; justify-content: flex-end; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
-  .dash-area { padding: 24px 16px; }
-  .dash-header h2 { font-size: 1.5rem; }
-  .chart-grid { grid-template-columns: 1fr; gap: 16px; }
-  .chart-wrap { height: 220px; }
-  .modal-box { width: 95%; padding: 24px 20px; border-radius: var(--r2); }
-  .mf-row-2 { grid-template-columns: 1fr; gap: 16px; }
-  .priority-options { grid-template-columns: 1fr; flex-direction: column; gap: 8px; }
+
+  /* Backdrop overlay when sidebar open */
+  .sidebar.open::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    left: min(88%, 340px);
+    background: rgba(0,0,0,0.5);
+    z-index: -1;
+  }
+
+  /* Main panel fills full width */
+  .main-panel {
+    width: 100%;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  /* Panel header */
+  .panel-header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    position: sticky;
+    top: 0;
+  }
+  .ph-left { gap: 12px; flex: 1; min-width: 0; }
+  .ph-right { flex-shrink: 0; }
+  .ph-title { font-size: 1.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ph-sub { font-size: .72rem; }
+  .ph-date-card { min-width: 52px; height: 52px; gap: 1px; }
+  .ph-dow { font-size: .5rem; }
+  .ph-day { font-size: 1.1rem; }
+  .ph-mon { font-size: .5rem; }
+  .add-btn { padding: 8px 12px; font-size: .78rem; }
+
+  /* Task area */
+  .task-area { padding: 14px 16px 60px; }
+  .task-list { gap: 10px; }
+  .task-card { padding: 14px 16px; gap: 12px; }
+  .tc-title { font-size: .9rem; }
+  .tc-desc { font-size: .8rem; }
+
+  /* Dashboard */
+  .dash-area { padding: 20px 16px 60px; }
+  .dash-header { margin-bottom: 20px; }
+  .dash-header h2 { font-size: 1.4rem; }
+  .dash-header p { font-size: .82rem; }
+  .chart-grid { grid-template-columns: 1fr; gap: 14px; }
+  .chart-card { padding: 18px 16px; }
+  .chart-wrap { height: 240px; }
+
+  /* Modal */
+  .modal-veil { align-items: flex-end; padding: 0; }
+  .modal-box {
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--r2) var(--r2) 0 0;
+    padding: 28px 20px 32px;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .mf-row-2 { grid-template-columns: 1fr; gap: 14px; }
+  .priority-options { flex-direction: column; gap: 8px; }
   .popt { width: 100%; }
-  .mf-actions { flex-direction: column-reverse; gap: 12px; }
-  .mf-actions button { width: 100%; margin: 0; }
-  .mf-cancel { background: var(--surface2); }
-  .toast-stack { bottom: 16px; left: 16px; right: 16px; align-items: center; }
-  .toast-item { width: 100%; justify-content: center; text-align: center; }
+  .mf-actions { flex-direction: column-reverse; gap: 10px; }
+  .mf-actions button { width: 100%; }
+
+  /* Delete modal stays centered */
+  #deleteVeil { align-items: center; padding: 20px; }
+  .del-box { width: 92%; max-width: 380px; }
+
+  /* Toasts */
+  .toast-stack { bottom: 12px; left: 12px; right: 12px; }
+  .toast-item { font-size: .8rem; padding: 10px 14px; }
+
+  /* Scroll ring — hide on mobile for space */
+  .scroll-prog-wrap { display: none; }
+
+  /* Widgets */
+  .cal-widget { padding: 14px; }
+  .stats-widget { padding: 14px; }
+  .filter-widget { padding: 14px; }
 }
 
-@media(max-width: 500px) {
-  .panel-header { flex-wrap: wrap; gap: 10px; }
-  .top-bar { padding: 0 14px; }
+/* ── Phones (≤480px) ── */
+@media (max-width: 480px) {
+  :root { --hdr: 54px; }
+
+  /* Header cramped view */
+  .top-bar { padding: 0 12px; gap: 8px; }
+  .tb-orb { width: 30px; height: 30px; border-radius: 8px; }
+  .tb-orb svg { width: 15px; height: 15px; }
+  .tb-name { font-size: .88rem; }
+  .tb-new-btn, .tb-dash-btn { padding: 6px 8px; }
+  .tb-new-btn svg, .tb-dash-btn svg { width: 16px; height: 16px; }
+  .hamburger { padding: 6px; gap: 4px; }
+  .hamburger span { width: 16px; }
+
+  /* Panel header */
+  .panel-header { padding: 12px 14px; gap: 10px; }
+  .ph-title { font-size: 1rem; }
+  .ph-date-card { min-width: 46px; height: 46px; }
+  .ph-day { font-size: 1rem; }
+  .add-btn { padding: 7px 10px; font-size: .72rem; }
+  .add-btn span { display: none; } /* icon only on tiny screens */
+
+  /* Tasks */
+  .task-area { padding: 12px 14px 60px; }
+  .task-card { padding: 12px 14px; }
+  .tc-badge { font-size: .6rem; padding: 2px 7px; }
+  .tc-time { font-size: .7rem; }
+  .tc-actions { gap: 6px; }
+  .tc-btn { width: 28px; height: 28px; }
+  .tc-btn svg { width: 14px; height: 14px; }
+
+  /* Calendar */
+  .cd { font-size: .68rem; border-radius: 6px; }
+  .cd-count { font-size: .48rem; padding: 1px 3px; top: 2px; right: 2px; }
+  .cal-month { font-size: .82rem; }
+  .cal-nav-btn { width: 28px; height: 28px; border-radius: 7px; }
+  .cal-nav-btn svg { width: 14px; height: 14px; }
+
+  /* Dashboard */
+  .dash-area { padding: 16px 14px 60px; }
+  .dash-header h2 { font-size: 1.2rem; }
+  .chart-wrap { height: 200px; }
+  .chart-card { padding: 14px 12px; }
+  .chart-card h3 { font-size: .88rem; margin-bottom: 12px; }
+
+  /* Modal */
+  .modal-box { padding: 24px 16px 28px; }
+  .modal-heading { font-size: 1.05rem; }
+  .mf-label { font-size: .75rem; }
+  .mf-input { font-size: .85rem; padding: 10px 14px; }
+  .mf-save { padding: 11px 20px; font-size: .84rem; }
+  .mf-cancel { padding: 10px 16px; font-size: .82rem; }
+  .modal-stepper { margin-bottom: 16px; }
+
+  /* Filter */
+  .filter-row { flex-direction: column; gap: 6px; }
+  .filter-btn { width: 100%; justify-content: center; }
+
+  /* Stats donut row */
+  .donut-row { gap: 8px; }
+  .donut-svg { width: 50px; height: 50px; }
+  .donut-num { font-size: 1rem; }
+
+  /* Toasts */
+  .toast-stack { bottom: 10px; left: 10px; right: 10px; }
+}
+
+/* ── Small Phones (≤360px) ── */
+@media (max-width: 360px) {
+  .top-bar { padding: 0 10px; }
+  .tb-name { font-size: .8rem; }
+  .panel-header { padding: 10px 12px; }
+  .ph-title { font-size: .9rem; }
+  .task-area { padding: 10px 12px 60px; }
+  .task-card { padding: 10px 12px; }
+  .tc-title { font-size: .82rem; }
+  .dash-area { padding: 14px 12px 60px; }
+  .chart-wrap { height: 170px; }
+  .donut-row { flex-direction: column; align-items: center; gap: 12px; }
+  .modal-box { padding: 20px 14px 24px; }
+  .cal-weekdays span { font-size: .5rem; }
 }
