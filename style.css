@@ -4,35 +4,53 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
 :root {
-  --bg: #050508;
-  --bg2: #080b12;
-  --surface: rgba(255, 255, 255, 0.042);
+  /* Backgrounds */
+  --bg:       #0f1117;
+  --bg2:      #161b27;
+  --surface:  rgba(255, 255, 255, 0.04);
   --surface2: rgba(255, 255, 255, 0.07);
-  --border: rgba(255, 255, 255, 0.07);
-  --border2: rgba(255, 255, 255, 0.14);
-  --t1: #f1f5ff;
-  --t2: #8892b0;
-  --t3: #3d4666;
-  --v: #7c3aed;
-  --v2: #a78bfa;
-  --v3: #c4b5fd;
-  --c: #0ea5e9;
-  --c2: #38bdf8;
-  --hi: #f43f5e;
-  --hi2: rgba(244, 63, 94, .14);
-  --md: #f59e0b;
-  --md2: rgba(245, 158, 11, .14);
-  --lo: #10b981;
-  --lo2: rgba(16, 185, 129, .14);
-  --r: 16px;
-  --r2: 22px;
-  --r3: 12px;
+
+  /* Borders */
+  --border:   rgba(255, 255, 255, 0.08);
+  --border2:  rgba(255, 255, 255, 0.15);
+
+  /* Text */
+  --t1: #eaeef6;
+  --t2: #8a95a8;
+  --t3: #4a5468;
+
+  /* Primary accent — calm blue */
+  --v:  #3b82f6;
+  --v2: #60a5fa;
+  --v3: #93c5fd;
+
+  /* Secondary — slate blue (for clock/mono accents) */
+  --c:  #6366f1;
+  --c2: #818cf8;
+
+  /* Priority: High = warm red, Medium = amber, Low = teal */
+  --hi:  #ef4444;
+  --hi2: rgba(239, 68, 68, .12);
+  --md:  #f59e0b;
+  --md2: rgba(245, 158, 11, .12);
+  --lo:  #14b8a6;
+  --lo2: rgba(20, 184, 166, .12);
+
+  /* Radii */
+  --r:  14px;
+  --r2: 18px;
+  --r3: 10px;
   --rf: 9999px;
-  --ease: cubic-bezier(.4, 0, .2, 1);
+
+  /* Easing */
+  --ease:   cubic-bezier(.4, 0, .2, 1);
   --spring: cubic-bezier(.34, 1.56, .64, 1);
-  --hdr: 68px;
-  --sb: 290px;
+
+  /* Layout */
+  --hdr: 64px;
+  --sb:  288px;
 }
+
 
 *,
 *::before,
@@ -101,10 +119,10 @@ select {
 
 #cursorGlow {
   position: fixed;
-  width: 400px;
-  height: 400px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(124, 58, 237, .12) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(59, 130, 246, .06) 0%, transparent 65%);
   pointer-events: none;
   z-index: 1;
   transform: translate(-50%, -50%);
@@ -139,44 +157,44 @@ select {
 .blob {
   position: absolute;
   border-radius: 50%;
-  opacity: .55;
+  opacity: .3;
   will-change: transform
 }
 
 .blob-a {
-  width: 700px;
-  height: 700px;
-  background: radial-gradient(circle, rgba(124, 58, 237, .26), transparent 70%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59, 130, 246, .1), transparent 70%);
   top: -20%;
   left: -15%;
-  animation: blobMove 22s ease-in-out infinite
+  animation: blobMove 28s ease-in-out infinite
 }
 
 .blob-b {
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(14, 165, 233, .2), transparent 70%);
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(99, 102, 241, .08), transparent 70%);
   top: -10%;
   right: -10%;
-  animation: blobMove 28s ease-in-out infinite reverse
+  animation: blobMove 34s ease-in-out infinite reverse
 }
 
 .blob-c {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(99, 102, 241, .18), transparent 70%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(59, 130, 246, .07), transparent 70%);
   bottom: -15%;
   right: -5%;
-  animation: blobMove 20s ease-in-out infinite 5s
+  animation: blobMove 26s ease-in-out infinite 5s
 }
 
 .blob-d {
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(16, 185, 129, .12), transparent 70%);
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(100, 116, 139, .06), transparent 70%);
   bottom: -10%;
   left: -5%;
-  animation: blobMove 25s ease-in-out infinite 10s reverse
+  animation: blobMove 30s ease-in-out infinite 10s reverse
 }
 
 @keyframes blobMove {
@@ -396,11 +414,11 @@ select {
 
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(124, 58, 237, .5)
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, .4)
   }
 
   50% {
-    box-shadow: 0 0 0 8px rgba(124, 58, 237, 0)
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0)
   }
 }
 
@@ -419,10 +437,8 @@ select {
 }
 
 .accent-text {
-  background: linear-gradient(135deg, var(--v2), var(--c2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text
+  color: var(--v2);
+  -webkit-text-fill-color: var(--v2);
 }
 
 .tb-tag {
